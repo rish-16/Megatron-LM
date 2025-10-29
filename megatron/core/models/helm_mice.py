@@ -3,7 +3,7 @@
 import torch
 from megatron.core import tensor_parallel
 from megatron.core.transformer.module import MegatronModule
-from megatron.core.transformer.custom_layers.custom_gpt.helm_mice import HELMMiCEBlock
+from megatron.core.transformer.custom_layers.custom_gpt.helm_mice import LorentzDeepSeekV3 as HELMMiCEBlock
 from megatron.core.transformer.custom_layers.custom_gpt.hmla import LorentzMLA
 from megatron.core.transformer.utils import get_linear_layer
 

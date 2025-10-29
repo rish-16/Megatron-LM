@@ -5,7 +5,7 @@ from torch import Tensor
 
 from torch_geometric.nn.nlp.llm import BOS, LLM, MAX_NEW_TOKENS
 from torch_geometric.utils import scatter
-from ..nn.peft import *
+from megatron.core.hypercore.nn.peft import *
 
 
 class GRetriever(torch.nn.Module):

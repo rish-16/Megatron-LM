@@ -191,7 +191,7 @@ class LorentzExpert(MegatronModule):
         x = self.w2(x)
         return x
     
-class LorentzMoE(torch.nn.Module):
+class LorentzMoE(MegatronModule):
     """
     Mixture-of-Experts (MoE) module.
 

@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
-from ..nn.conv import *
-from ..manifolds import Lorentz
+from megatron.core.hypercore.nn.conv import *
+from megatron.core.hypercore.manifolds import Lorentz
 
 class Lorentz_ResNet(nn.Module):
     """ Implementation of ResNet models on manifolds. """

@@ -5,12 +5,12 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from ..models.graph_decoders import model2decoder, MDDecoder
-from ..utils.eval_utils import acc_f1, MarginLoss
-from ..manifolds import Lorentz
+from megatron.core.hypercore.models.graph_decoders import model2decoder, MDDecoder
+from megatron.core.hypercore.utils.eval_utils import acc_f1, MarginLoss
+from megatron.core.hypercore.manifolds import Lorentz
 import networkx as nx
 import scipy.sparse as sp
-from ..utils import distortions as dis
+from megatron.core.hypercore.utils import distortions as dis
 from geoopt.manifolds import PoincareBall
 
 class BaseModel(nn.Module):

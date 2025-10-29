@@ -1,6 +1,6 @@
 from geoopt import ManifoldParameter
-from .radam import RiemannianAdam
-from .rsgd import RiemannianSGD
+from megatron.core.hypercore.optimizers.radam import RiemannianAdam
+from megatron.core.hypercore.optimizers.rsgd import RiemannianSGD
 import torch
 
 def get_param_groups(model, weight_decay=0):

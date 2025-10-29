@@ -1,6 +1,6 @@
 import torch.optim.optimizer
 from geoopt import ManifoldParameter, ManifoldTensor
-from .mixin import OptimMixin
+from megatron.core.hypercore.optimizers.mixin import OptimMixin
 
 __all__ = ["RiemannianSGD"]
 

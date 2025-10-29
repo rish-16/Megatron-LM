@@ -7,7 +7,7 @@ import torch as th
 import torch.optim as optim
 import numpy as np
 import random
-from ..optimizers import RiemannianSGD
+from megatron.core.hypercore.optimizers import RiemannianSGD
 import math
 import subprocess
 import random

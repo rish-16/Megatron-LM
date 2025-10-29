@@ -1,10 +1,10 @@
-from .. import nn as hnn
+from megatron.core.hypercore import nn as hnn
 import math
 import torch
 from torch import nn
 import torch.nn.functional as F
 
-from ..manifolds import Lorentz
+from megatron.core.hypercore.manifolds import Lorentz
 
 class LorentzFeedForward(nn.Module):
     """

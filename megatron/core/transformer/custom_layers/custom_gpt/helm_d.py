@@ -23,7 +23,7 @@ def precompute_theta_pos_frequencies(head_dim, seq_len, theta: float = 10000.0):
     freqs_complex = torch.polar(torch.ones_like(freqs), freqs)
     return freqs_complex
 
-class _LTransformerDecoderBlock(torch.nn.Module):
+class _LTransformerDecoderBlock(MegatronModule):
     """
     A single Transformer block for the decoder.
     - Uses **masked** self-attention (causal).
@@ -56,7 +56,7 @@ class _LTransformerDecoderBlock(torch.nn.Module):
         x = self.res2(x, self.mlp(self.ln_2(x)))
         return x
     
-class LTransformerDecoder(torch.nn.Module):
+class LTransformerDecoder(MegatronModule):
     """
     A decoder-only Transformer (like LLAMA) that:
     - Uses **causal attention mask** (future tokens are masked).

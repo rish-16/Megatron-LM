@@ -1,6 +1,6 @@
 import torch.optim
 
-from .mixin import OptimMixin
+from megatron.core.hypercore.optimizers.mixin import OptimMixin
 from geoopt import ManifoldParameter, ManifoldTensor
 from torch.nn.utils.clip_grad import clip_grad_norm_
 

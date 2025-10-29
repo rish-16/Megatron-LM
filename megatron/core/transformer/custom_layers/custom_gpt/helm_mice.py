@@ -13,8 +13,8 @@ from megatron.core.hypercore.manifolds import Lorentz
 import math
 import numpy as np
 from megatron.core.hypercore.models.lorentz_feedforward import LorentzFeedForward
-from .hmla import LorentzMLA
-from .mice import LorentzMoE
+from megatron.core.transformer.custom_layers.custom_gpt.hmla import LorentzMLA
+from megatron.core.transformer.custom_layers.custom_gpt.mice import LorentzMoE
 
 global world_size, rank
 world_size = dist.get_world_size() if dist.is_initialized() else 1
@@ -102,7 +102,7 @@ def precompute_freqs_cis(args) -> torch.Tensor:
     freqs_cis = torch.polar(torch.ones_like(freqs), freqs)
     return freqs_cis
 
-class Block(torch.nn.Module):
+class Block(MegatronModule):
     """
     Transformer block combining attention and feed-forward layers.
 
@@ -159,7 +159,7 @@ class Block(torch.nn.Module):
             x = self.ffn_res(x, x_ffn)
             return x
         
-class LorentzDeepSeekV3(torch.nn.Module):
+class LorentzDeepSeekV3(MegatronModule):
     """
     Transformer model with positional embeddings, multiple layers, and output projection.
 
