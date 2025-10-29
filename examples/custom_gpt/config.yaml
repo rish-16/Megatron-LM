@@ -1,0 +1,39 @@
+# Custom GPT model configuration
+
+{
+    "num-layers": 24,
+    "hidden-size": 1024,
+    "num-attention-heads": 16,
+    "seq-length": 2048,
+    "max-position-embeddings": 2048,
+    "norm": "layernorm",
+    "pos-embedding-type": "rotary",
+    
+    # MoE configuration
+    "num-experts": 8,
+    "expert-model-parallel-size": 2,
+    
+    # Training parameters
+    "micro-batch-size": 4,
+    "global-batch-size": 128,
+    "train-iters": 500000,
+    "lr": 0.0001,
+    "min-lr": 0.00001,
+    "lr-decay-style": "cosine",
+    "weight-decay": 0.1,
+    "clip-grad": 1.0,
+    
+    # Distributed training
+    "tensor-model-parallel-size": 8,
+    "pipeline-model-parallel-size": 1,
+    
+    # Checkpointing
+    "save": "checkpoints",
+    "load": "checkpoints",
+    "save-interval": 1000,
+    
+    # Logging
+    "log-interval": 100,
+    "eval-interval": 1000,
+    "eval-iters": 10
+}
