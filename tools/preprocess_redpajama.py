@@ -7,7 +7,7 @@ import sys
 import argparse
 from datasets import load_dataset
 from megatron.tokenizer import build_tokenizer
-from megatron.data.dataset.custom_gpt.redpajama import RedPajamaDataset
+from megatron.data.dataset.scaling_helm_mice.redpajama import RedPajamaDataset
 from megatron.core.hypercore.manifolds import Lorentz
 
 def get_args():

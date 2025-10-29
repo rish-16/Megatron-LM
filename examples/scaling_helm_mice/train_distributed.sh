@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Distributed training script for custom GPT model
+# Distributed training script for custom GPT model (renamed folder)
 
 # Number of GPUs to use
 GPUS_PER_NODE=8
@@ -8,7 +8,7 @@ GPUS_PER_NODE=8
 NNODES=1
 
 # Directory configuration
-CONFIG_PATH="examples/custom_gpt/config.yaml"
+CONFIG_PATH="examples/scaling_helm_mice/config.yaml"
 CHECKPOINT_PATH="checkpoints/custom_gpt"
 VOCAB_FILE="path/to/your/vocab.json"  # Update this
 MERGE_FILE="path/to/your/merges.txt"  # Update this

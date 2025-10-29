@@ -1,0 +1,94 @@
+# HELM-MiCE configuration for Megatron-LM
+
+# Model Architecture
+model:
+  seq_length: 2048
+  num_layers: 16
+  hidden_size: 910
+  num_attention_heads: 14
+  intermediate_size: 3640
+  
+  # Custom HELM-MiCE specific parameters
+  mice_config:
+    mice_inter_dim: 1820
+    num_routed_experts: 8
+    num_shared_experts: 1
+    num_activated_experts: 2
+    num_expert_groups: 1
+    num_limited_groups: 1
+    score_function: "softmax"
+    route_scale: 1.0
+    bias_update_speed: 0.005
+    seq_bal_alpha: 0.0001
+    train_curvature: true
+    project_embeddings: false
+  
+  # Hyperbolic attention config
+  attention_config:
+    q_lora_rank: 0
+    kv_lora_rank: 257
+    qk_nope_head_dim: 65
+    qk_rope_head_dim: 65
+    v_head_dim: 65
+  
+  # YARN positional encoding
+  position_embedding_config:
+    original_seq_len: 2048
+    rope_theta: 10000
+    rope_factor: 40
+    beta_fast: 32
+    beta_slow: 1
+
+# Training Configuration
+training:
+  micro_batch_size: 1
+  global_batch_size: ${micro_batch_size}
+  train_samples: 100000000
+  
+  # Optimizer
+  optimizer_name: "RiemannianAdam"  # Custom optimizer for hyperbolic space
+  lr: 0.0004
+  min_lr_ratio: 0.1
+  lr_warmup_ratio: 0.03
+  weight_decay: 0.01
+  gradient_accumulation_steps: 256
+  
+  # Mixed Precision
+  fp16: false
+  bf16: false
+  
+  # Checkpointing
+  checkpoint_dir: "../ckpt"
+  save_interval: 100
+  checkpoint_validation_with_forward_pass: true
+  
+  # Logging
+  log_interval: 100
+  log_dir: "../log"
+  wandb_project: "helm-mice"  # Optional: for W&B logging
+  
+  # Data
+  data_path: "../data"
+  vocab_size: 128256
+  packing_ratio: 3.0
+  
+  # Distributed Training
+  tensor_model_parallel_size: 4
+  pipeline_model_parallel_size: 1
+  distributed_backend: "nccl"
+  find_unused_parameters: true
+  
+  # Misc
+  seed: 1234
+  exit_interval: 1000
+  eval_interval: 1000
+  eval_iters: 10
+
+# DeepSpeed Integration
+deepspeed_config: "config/ds_conf.json"
+
+# Hardware
+gpu_config:
+  num_gpus: 8
+  master_port: 6000
+  master_addr: "localhost"

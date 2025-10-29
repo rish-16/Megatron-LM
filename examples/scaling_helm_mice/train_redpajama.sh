@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Training script for hyperbolic transformer on RedPajama
+# Training script for hyperbolic transformer on RedPajama (renamed folder)
 
 # Data paths
 DATA_PATH="/path/to/processed/redpajama"
