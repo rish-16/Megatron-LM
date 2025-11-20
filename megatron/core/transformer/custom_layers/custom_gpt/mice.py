@@ -16,7 +16,10 @@ from operator import mul
 global world_size, rank
 world_size = dist.get_world_size() if dist.is_initialized() else 1
 rank = dist.get_rank() if dist.is_initialized() else 0
-from deepspeed.runtime.zero.partition_parameters import GatheredParameters
+
+# from deepspeed.runtime.zero.partition_parameters import GatheredParameters
+from megatron.core.transformer.custom_layers.custom_gpt.kernels.lorentz_expert_kernel import multiply_and_pack
+
 
 def _calc_fans(t, fan_in=None, fan_out=None):
     if fan_in is not None and fan_out is not None:
@@ -185,10 +188,17 @@ class LorentzExpert(MegatronModule):
         x = x * (self.expert_manifold.c / self.c).sqrt() # transfer inputs to expert manifold
         x1_time = F.silu(self.w1(x, return_space=True))
         x3_time = self.w3(x, return_space=True)
-        x_space = x1_time * x3_time
-        x_time = ((x_space**2).sum(dim=-1, keepdims=True) + self.expert_manifold.c).clamp_min(1e-8).sqrt()
-        x = torch.cat([x_time, x_space], dim=-1)
+
+        try:
+            x = multiply_and_pack(x1_time, x3_time, self.expert_manifold.c) # triton kernel
+        except Exception:
+            # safe fallback (identical semantics)
+            x_space = x1_time * x3_time
+            x_time = ((x_space**2).sum(dim=-1, keepdims=True) + self.expert_manifold.c).clamp_min(1e-8).sqrt()
+            x = torch.cat([x_time, x_space], dim=-1)
+
         x = self.w2(x)
+
         return x
     
 class LorentzMoE(MegatronModule):
