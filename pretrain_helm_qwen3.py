@@ -137,14 +137,14 @@ def add_helm_args(parser):
     group.add_argument('--no-project-emb', action='store_false', dest='project_emb',
                        help='Use native hyperbolic embeddings')
 
-    # RoPE scaling parameters
-    group.add_argument('--beta-fast', type=int, default=32,
+    # RoPE scaling parameters (use helm- prefix to avoid conflicts)
+    group.add_argument('--helm-beta-fast', type=int, default=32,
                        help='Beta fast for RoPE scaling')
-    group.add_argument('--beta-slow', type=int, default=1,
+    group.add_argument('--helm-beta-slow', type=int, default=1,
                        help='Beta slow for RoPE scaling')
-    group.add_argument('--mscale', type=float, default=1.0,
+    group.add_argument('--helm-mscale', type=float, default=1.0,
                        help='M-scale for attention scaling')
-    group.add_argument('--rope-factor', type=float, default=1.0,
+    group.add_argument('--helm-rope-factor', type=float, default=1.0,
                        help='RoPE scaling factor')
 
     return parser
@@ -166,10 +166,10 @@ def build_helm_model_args(args) -> HELMModelArgs:
         qk_rope_head_dim=getattr(args, 'helm_qk_rope_head_dim', 64),
         v_head_dim=getattr(args, 'helm_v_head_dim', 128),
         rope_theta=getattr(args, 'rotary_base', 1000000.0),
-        rope_factor=getattr(args, 'rope_factor', 1.0),
-        beta_fast=getattr(args, 'beta_fast', 32),
-        beta_slow=getattr(args, 'beta_slow', 1),
-        mscale=getattr(args, 'mscale', 1.0),
+        rope_factor=getattr(args, 'helm_rope_factor', 1.0),
+        beta_fast=getattr(args, 'helm_beta_fast', 32),
+        beta_slow=getattr(args, 'helm_beta_slow', 1),
+        mscale=getattr(args, 'helm_mscale', 1.0),
         inter_dim=args.ffn_hidden_size,
         mice_inter_dim=getattr(args, 'mice_inter_dim', 1408),
         n_routed_experts=getattr(args, 'n_routed_experts', 8),

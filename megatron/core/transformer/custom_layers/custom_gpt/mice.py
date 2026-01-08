@@ -1,5 +1,4 @@
 from megatron.core import tensor_parallel
-from megatron.core.transformer.module import MegatronModule
 from megatron.core.hypercore import nn as hnn
 from typing import Tuple, Optional, Literal
 
@@ -41,7 +40,7 @@ def _xavier_uniform_(t: torch.Tensor, gain: float = 1.0,
         # return t.uniform_(-bound, bound)
 
 
-class Gate(MegatronModule):
+class Gate(nn.Module):
     """Gate module for expert routing."""
     """
     Gating mechanism for routing inputs in a mixture-of-experts (MoE) model.
@@ -141,7 +140,7 @@ class Gate(MegatronModule):
             with torch.no_grad():
                 self.bias += self.bias_update_spd * (mean - util)
 
-class LorentzExpert(MegatronModule):
+class LorentzExpert(nn.Module):
     """Lorentz Expert implementation for MoE."""
     """
     Expert layer for Lorentz Mixture-of-Experts (MoE) models.
@@ -191,7 +190,7 @@ class LorentzExpert(MegatronModule):
         x = self.w2(x)
         return x
     
-class LorentzMoE(MegatronModule):
+class LorentzMoE(nn.Module):
     """
     Mixture-of-Experts (MoE) module.
 

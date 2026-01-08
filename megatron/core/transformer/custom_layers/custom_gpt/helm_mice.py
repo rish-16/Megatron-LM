@@ -1,5 +1,4 @@
 from megatron.core import tensor_parallel
-from megatron.core.transformer.module import MegatronModule
 from megatron.core.hypercore import nn as hnn
 import math
 from dataclasses import dataclass
@@ -102,7 +101,7 @@ def precompute_freqs_cis(args) -> torch.Tensor:
     freqs_cis = torch.polar(torch.ones_like(freqs), freqs)
     return freqs_cis
 
-class Block(MegatronModule):
+class Block(nn.Module):
     """
     Transformer block combining attention and feed-forward layers.
 
@@ -159,7 +158,7 @@ class Block(MegatronModule):
             x = self.ffn_res(x, x_ffn)
             return x
         
-class LorentzDeepSeekV3(MegatronModule):
+class LorentzDeepSeekV3(nn.Module):
     """
     Transformer model with positional embeddings, multiple layers, and output projection.
 
@@ -173,7 +172,7 @@ class LorentzDeepSeekV3(MegatronModule):
         norm: Lorentz RMS layer normalization applied after all blocks.
         head: Output projection layer mapping to vocabulary size, Lorentz linear layer
         freqs_cis (torch.Tensor): Precomputed complex exponential values for rotary embeddings.
-        train (bool): if True, return relevant information for load balancing 
+        train (bool): if True, return relevant information for load balancing
     """
     def __init__(self, args, manifold_in, manifold_hidden, manifold_out):
         """

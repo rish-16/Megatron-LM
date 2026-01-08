@@ -124,10 +124,10 @@ HYPERBOLIC_ARGS=(
     --curvature 1.0              # Initial curvature of hyperbolic space
     --train-curvature            # Make curvature learnable
     --project-emb                # Project Euclidean embeddings to hyperbolic
-    --beta-fast 32               # RoPE scaling parameter
-    --beta-slow 1                # RoPE scaling parameter
-    --mscale 1.0                 # Attention scaling
-    --rope-factor 1.0            # RoPE scaling factor
+    --helm-beta-fast 32          # RoPE scaling parameter
+    --helm-beta-slow 1           # RoPE scaling parameter
+    --helm-mscale 1.0            # Attention scaling
+    --helm-rope-factor 1.0       # RoPE scaling factor
 )
 
 # Training hyperparameters for 8x 40GB GPUs with TP=2
