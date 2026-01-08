@@ -11,6 +11,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
 import time
 import gzip
 import glob
+import io
+try:
+    import zstandard as zstd
+    zstd_available = True
+except ImportError:
+    zstd_available = False
 import torch
 import numpy as np
 import multiprocessing
@@ -302,23 +308,26 @@ def main():
 
         # check to see if paritions were already created
         partitions_present = check_files_exist(in_ss_out_names, 'partition', args.partitions)
-
         # check to see if paritions with split sentences already created
         split_sentences_present = check_files_exist(in_ss_out_names, 'sentence_split', args.partitions)
-
         if not partitions_present and not split_sentences_present:
             # populate .jsonl partition files from parent files
             partitioned_input_files = []
             for idx in range(args.partitions):
                 partitioned_input_file = open(in_ss_out_names[idx]['partition'], 'w')
                 partitioned_input_files.append(partitioned_input_file)
-
             index = 0
             if args.keep_sequential_samples: line_count = 0
             for in_file_name in in_file_names:
-                # support for gzip files
+                # support for gzip and zstd files
                 if in_file_name.endswith(".gz"):
                     fin = gzip.open(in_file_name, 'rt')
+                elif in_file_name.endswith(".zst") or in_file_name.endswith(".zstd"):
+                    if not zstd_available:
+                        raise ImportError("zstandard library required for .zst files. Install with: pip install zstandard")
+                    dctx = zstd.ZstdDecompressor()
+                    fin = dctx.stream_reader(open(in_file_name, 'rb'))
+                    fin = io.TextIOWrapper(fin, encoding='utf-8')
                 else:
                     fin = open(in_file_name, 'r', encoding='utf-8')
 
@@ -341,7 +350,7 @@ def main():
 
     # check to see if paritions with split sentences already created
     split_sentences_present = check_files_exist(in_ss_out_names, 'sentence_split', args.partitions)
-
+    
     # split sentences in partition files
     if args.split_sentences and not split_sentences_present:
         processes = []
@@ -385,7 +394,6 @@ def main():
         tokenizer = build_tokenizer(args)
     else:
         tokenizer = build_new_tokenizer(args)
-
     for key in args.json_keys:
         output_bin_files[key] = "{}_{}_{}.bin".format(args.output_prefix,
                                                       key, level)

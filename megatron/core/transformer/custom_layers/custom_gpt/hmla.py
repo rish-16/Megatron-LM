@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from typing import Tuple, Optional, Literal
 from megatron.core import tensor_parallel
 from megatron.core.transformer.module import MegatronModule
-from megatron.core.hypercore.nn import nn
+from megatron.core.hypercore import nn as hnn
 from megatron.core.hypercore.nn.linear import LorentzLinear
 from megatron.core.hypercore.nn.conv import LorentzRMSNorm
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.distributed as dist
 

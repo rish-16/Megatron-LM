@@ -1,16 +1,16 @@
 from megatron.core import tensor_parallel
 from megatron.core.transformer.module import MegatronModule
-from megatron.core.hypercore.nn import nn
+from megatron.core.hypercore import nn as hnn
 import math
 from dataclasses import dataclass
 from typing import Tuple, Optional, Literal
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.distributed as dist
 
 from megatron.core.hypercore.manifolds import Lorentz
-import math
 import numpy as np
 from megatron.core.hypercore.models.lorentz_feedforward import LorentzFeedForward
 from megatron.core.transformer.custom_layers.custom_gpt.hmla import LorentzMLA
@@ -126,10 +126,10 @@ class Block(MegatronModule):
         self.manifold = manifold
         self.attn = LorentzMLA(self.manifold, args)
         self.ffn = LorentzFeedForward(manifold, args.dim, args.inter_dim) if layer_id < args.n_dense_layers else LorentzMoE(manifold, args)
-        self.attn_norm = nn.LorentzRMSNorm(self.manifold, args.dim - 1)
-        self.ffn_norm = nn.LorentzRMSNorm(self.manifold, args.dim - 1)
-        self.attn_res = nn.LResNet(self.manifold, use_scale=True, scale=math.sqrt(args.dim), learn_scale=False)
-        self.ffn_res = nn.LResNet(self.manifold, use_scale=True, scale=math.sqrt(args.dim), learn_scale=False)
+        self.attn_norm = hnn.LorentzRMSNorm(self.manifold, args.dim - 1)
+        self.ffn_norm = hnn.LorentzRMSNorm(self.manifold, args.dim - 1)
+        self.attn_res = hnn.LResNet(self.manifold, use_scale=True, scale=math.sqrt(args.dim), learn_scale=False)
+        self.ffn_res = hnn.LResNet(self.manifold, use_scale=True, scale=math.sqrt(args.dim), learn_scale=False)
 
     def forward(self, x: torch.Tensor, start_pos: int, freqs_cis: torch.Tensor, mask: Optional[torch.Tensor]) -> torch.Tensor:
         """
@@ -194,16 +194,16 @@ class LorentzDeepSeekV3(MegatronModule):
         self.train_curv = args.train_curv
         self.project_emb = args.project_emb
         if not self.project_emb:
-            self.embed = nn.LorentzEmbeddings(self.manifold_in, args.vocab_size, args.dim, manifold_out=self.manifold_hidden, posit_embed=False)
+            self.embed = hnn.LorentzEmbeddings(self.manifold_in, args.vocab_size, args.dim, manifold_out=self.manifold_hidden, posit_embed=False)
         else:
-            self.embed = torch.nn.Embedding(args.vocab_size, args.dim-1)
-        self.layers = torch.nn.ModuleList()
+            self.embed = nn.Embedding(args.vocab_size, args.dim-1)
+        self.layers = nn.ModuleList()
         for layer_id in range(args.n_layers):
             self.layers.append(Block(manifold_hidden, layer_id, args))
-        self.final_proj = nn.LorentzLinear(manifold_hidden, args.dim, args.dim-1, manifold_out=manifold_out)
-        self.norm = nn.LorentzRMSNorm(self.manifold_out, args.dim - 1)
+        self.final_proj = hnn.LorentzLinear(manifold_hidden, args.dim, args.dim-1, manifold_out=manifold_out)
+        self.norm = hnn.LorentzRMSNorm(self.manifold_out, args.dim - 1)
 
-        self.head = torch.nn.Linear(args.dim, args.vocab_size, bias=False)
+        self.head = nn.Linear(args.dim, args.vocab_size, bias=False)
         self.register_buffer("freqs_cis", precompute_freqs_cis(args), persistent=False)
         context_length = args.max_seq_len
         attn_mask = torch.triu(

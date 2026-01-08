@@ -1,9 +1,10 @@
 from megatron.core import tensor_parallel
 from megatron.core.transformer.module import MegatronModule
-from megatron.core.hypercore.nn import nn
+from megatron.core.hypercore import nn as hnn
 from typing import Tuple, Optional, Literal
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.distributed as dist
 import math
@@ -16,7 +17,6 @@ from operator import mul
 global world_size, rank
 world_size = dist.get_world_size() if dist.is_initialized() else 1
 rank = dist.get_rank() if dist.is_initialized() else 0
-from deepspeed.runtime.zero.partition_parameters import GatheredParameters
 
 def _calc_fans(t, fan_in=None, fan_out=None):
     if fan_in is not None and fan_out is not None:
@@ -72,13 +72,13 @@ class Gate(MegatronModule):
         self.score_func = args.score_func
         self.route_scale = args.route_scale
         self.bias_update_spd = args.bias_update_speed
-        self.weight = torch.nn.Parameter(torch.empty(args.n_routed_experts, self.dim))
-        self.bias = torch.nn.Parameter(torch.zeros(args.n_routed_experts)) 
-        self.reset_parameters()   
+        self.weight = nn.Parameter(torch.empty(args.n_routed_experts, self.dim))
+        self.bias = nn.Parameter(torch.zeros(args.n_routed_experts))
+        self.reset_parameters()
         self.manifold = manifold
     def reset_parameters(self):
-        torch.nn.init.xavier_uniform_(self.weight, gain=1.0) 
-        torch.nn.init.zeros_(self.bias)
+        nn.init.xavier_uniform_(self.weight, gain=1.0)
+        nn.init.zeros_(self.bias)
     def project(self, x):
         x_time = ((x ** 2).sum(dim=-1, keepdims=True) + self.manifold.c) ** 0.5
         x = torch.cat([x_time, x], dim=-1)
@@ -168,9 +168,9 @@ class LorentzExpert(MegatronModule):
             self.expert_manifold = expert_manifold
         else:
             self.expert_manifold = manifold
-        self.w1 = nn.LorentzLinear(self.expert_manifold, dim, inter_dim - 1)
-        self.w2 = nn.LorentzLinear(self.expert_manifold, inter_dim, dim - 1, manifold_out=self.manifold)
-        self.w3 = nn.LorentzLinear(self.expert_manifold, dim, inter_dim - 1)
+        self.w1 = hnn.LorentzLinear(self.expert_manifold, dim, inter_dim - 1)
+        self.w2 = hnn.LorentzLinear(self.expert_manifold, inter_dim, dim - 1, manifold_out=self.manifold)
+        self.w3 = hnn.LorentzLinear(self.expert_manifold, dim, inter_dim - 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -226,7 +226,7 @@ class LorentzMoE(MegatronModule):
         self.curvature_list = np.linspace(0.1, 2.0, self.n_routed_experts).tolist()
         self.n_shared_experts = args.n_shared_experts
         self.expert_manifolds = [Lorentz(c=(self.curvature_list[i]), learnable=False) for i in range(self.n_routed_experts)]
-        self.experts = torch.nn.ModuleList([LorentzExpert(self.manifold, args.dim, args.mice_inter_dim, self.expert_manifolds[i]) for i in range(self.n_routed_experts)])
+        self.experts = nn.ModuleList([LorentzExpert(self.manifold, args.dim, args.mice_inter_dim, self.expert_manifolds[i]) for i in range(self.n_routed_experts)])
         self.shared_experts = LorentzFeedForward(self.manifold, args.dim, args.n_shared_experts * args.mice_inter_dim)
 
     def project(self, x):

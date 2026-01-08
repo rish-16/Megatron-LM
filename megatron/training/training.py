@@ -1264,7 +1264,7 @@ def train_step(forward_step_func, data_iterator, model, optimizer, opt_param_sch
             for optim_instance in optimizer.chained_optimizers:
                 if isinstance(optim_instance, DistributedOptimizer):
                     optim_instance._copy_main_params_to_param_buffer()
-
+        # import ipdb; ipdb.set_trace()
         # Forward pass.
         losses_reduced = forward_backward_func(
             forward_step_func=forward_step_func,
@@ -1277,6 +1277,7 @@ def train_step(forward_step_func, data_iterator, model, optimizer, opt_param_sch
             forward_only=False,
             adjust_tensor_shapes_fn=adjust_tensor_shapes_fn,
         )
+        
     should_checkpoint, should_exit, exit_code = rerun_state_machine.should_checkpoint_and_exit()
     if should_exit:
         return {}, True, should_checkpoint, should_exit, exit_code, None, None

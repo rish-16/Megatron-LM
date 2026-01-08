@@ -5,7 +5,6 @@ import torch.nn.init as init
 import math
 import torch.distributed as dist
 from ...manifolds import Lorentz
-from deepspeed.runtime.zero.partition_parameters import GatheredParameters
 class LorentzLinear(nn.Module):
     """
     Fully hyperbolic Lorentz Linear Layer with variable curvature
